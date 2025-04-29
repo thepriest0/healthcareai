@@ -25,10 +25,10 @@
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    * { 
-      margin: 0; 
-      padding: 0; 
-      box-sizing: border-box; 
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     body {
@@ -291,102 +291,69 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Floating action button for mobile */
+    /* Rich text formatting styles */
+    .message-text b,
+    .message-text strong {
+      font-weight: 600;
+    }
+    
+    .message-text i,
+    .message-text em {
+      font-style: italic;
+    }
+    
+    .message-text u {
+      text-decoration: underline;
+    }
+    
+    .message-text a {
+      color: var(--primary-dark);
+      text-decoration: none;
+      font-weight: 500;
+      border-bottom: 1px dotted var(--primary);
+    }
+    
+    .message-text a:hover {
+      color: var(--primary);
+      border-bottom-style: solid;
+    }
+    
+    .message-text ul,
+    .message-text ol {
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+    }
+    
+    .message-text li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .user-message .message-text a {
+      color: white;
+      border-bottom-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .user-message .message-text a:hover {
+      border-bottom-color: white;
+    }
+
     .fab {
       display: none;
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      border: none;
-      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
-      cursor: pointer;
-      z-index: 20;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      header {
-        padding: 1rem;
-      }
-      
-      .logo-text {
-        font-size: 1.25rem;
-      }
-      
-      .logo-tagline {
-        display: none;
-      }
-      
-      .chat-container {
-        padding: 1rem;
-      }
-      
-      .input-area {
-        padding: 1rem;
-      }
-      
-      .send-btn {
-        padding: 0 1.25rem;
-        height: 50px;
-      }
-      
-      .fab {
-        display: flex;
-      }
-    }
-
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--bg);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--primary);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--primary-dark);
-    }
-
-    /* Pulse animation for important messages */
-    .pulse {
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
     }
   </style>
 </head>
+
 <body>
 
   <header>
     <div class="logo">
-      <div class="logo-icon">
-        <i class="fas fa-heartbeat"></i>
-      </div>
+      <div class="logo-icon"><i class="fas fa-heartbeat"></i></div>
       <div class="logo-text">HealthGuide AI</div>
     </div>
     <div class="logo-tagline">Your 24/7 Personal Health Assistant</div>
   </header>
 
   <div class="chat-container" id="chat">
-    <!-- Welcome message -->
     <div class="message bot-message">
       <div class="message-avatar bot-avatar">
         <i class="fas fa-robot"></i>
@@ -413,15 +380,10 @@
     </button>
   </div>
 
-  <button class="fab" onclick="focusInput()">
-    <i class="fas fa-comment-medical"></i>
-  </button>
-
   <script>
     const chatBox = document.getElementById('chat');
     const inputField = document.getElementById('userInput');
-    
-    // Set current time in welcome message
+
     document.getElementById('current-time').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
     // Load chat history from localStorage
@@ -437,17 +399,29 @@
         e.preventDefault();
         sendMessage();
       }
-      
-      // Auto-resize textarea
       this.style.height = 'auto';
       this.style.height = (this.scrollHeight) + 'px';
     });
 
-    function focusInput() {
-      inputField.focus();
+    function formatResponse(text) {
+      // Convert markdown-like syntax to HTML
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')        // Bold
+        .replace(/\*(.*?)\*/g, '<i>$1</i>')            // Italic
+        .replace(/_(.*?)_/g, '<u>$1</u>')              // Underline
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>') // Links
+        .replace(/^- (.*?)(?=\n|$)/gm, '<li>$1</li>')  // Unordered lists
+        .replace(/^\d+\. (.*?)(?=\n|$)/gm, '<li>$1</li>') // Ordered lists
+        .replace(/<li>.*?<\/li>/g, function(match) {
+          return match.replace(/<li>(.*?)<\/li>/g, '<li>$1</li>');
+        })
+        .replace(/(<li>.*?<\/li>)+/g, function(match) {
+          return '<ul>' + match + '</ul>';
+        });
     }
 
     function appendMessage(sender, message, isUser = false) {
+      const formattedMessage = isUser ? message : formatResponse(message);
       const messageElement = document.createElement('div');
       messageElement.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
       messageElement.innerHTML = `
@@ -456,7 +430,7 @@
         </div>
         <div class="message-content">
           <div class="message-sender">${sender}</div>
-          <div class="message-text">${message}</div>
+          <div class="message-text">${formattedMessage}</div>
           <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
         </div>
       `;
@@ -473,64 +447,48 @@
     }
 
     function sendMessage() {
-      const message = inputField.value.trim();
-      if (!message) return;
+  const message = inputField.value.trim();
+  if (!message) return;
 
-      appendMessage('You', message, true);
-      inputField.value = '';
-      inputField.style.height = '60px';
+  appendMessage('You', message, true);
+  inputField.value = '';
+  inputField.style.height = '60px';
 
-      // Typing indicator
-      const typingHTML = `
-        <div class="message" id="typing">
-          <div class="message-avatar bot-avatar"><i class="fas fa-robot"></i></div>
-          <div class="message-content">
-            <div class="message-sender">HealthGuide AI</div>
-            <div class="typing-indicator">
-              <div class="typing-dots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-              </div>
-            </div>
+  const typingHTML = `
+    <div class="message" id="typing">
+      <div class="message-avatar bot-avatar"><i class="fas fa-robot"></i></div>
+      <div class="message-content">
+        <div class="message-sender">HealthGuide AI</div>
+        <div class="typing-indicator">
+          <div class="typing-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
           </div>
-        </div>`;
-      chatBox.insertAdjacentHTML('beforeend', typingHTML);
-      chatBox.scrollTop = chatBox.scrollHeight;
+        </div>
+      </div>
+    </div>`;
+  chatBox.insertAdjacentHTML('beforeend', typingHTML);
+  chatBox.scrollTop = chatBox.scrollHeight;
 
-      // Simulate API call (replace with actual fetch)
-      setTimeout(() => {
-        document.getElementById('typing').remove();
-        
-        // Sample responses - replace with actual API response
-        const sampleResponses = [
-          "Based on your symptoms, it could be related to seasonal allergies. Have you tried antihistamines? However, if symptoms persist for more than a week, please consult a doctor.",
-          "That's a great question about nutrition! A balanced diet should include plenty of fruits, vegetables, lean proteins, and whole grains. Would you like me to suggest a meal plan?",
-          "For fitness, I recommend starting with 30 minutes of moderate exercise daily. Remember to stay hydrated and listen to your body's signals."
-        ];
-        
-        const randomResponse = sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
-        appendMessage('HealthGuide AI', randomResponse);
-      }, 1500);
-      
-      // Actual API call would look like this:
-      /*
-      fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
-      })
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('typing').remove();
-        appendMessage('HealthGuide AI', data.reply);
-      })
-      .catch(error => {
-        document.getElementById('typing').remove();
-        appendMessage('HealthGuide AI', '⚠️ Sorry, something went wrong connecting to the server.');
-      });
-      */
-    }
+  // REAL API Call here ✅
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message })
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('typing').remove();
+    appendMessage('HealthGuide AI', data.reply);
+  })
+  .catch(error => {
+    document.getElementById('typing').remove();
+    appendMessage('HealthGuide AI', '⚠️ Sorry, something went wrong connecting to the server.');
+  });
+}
+
   </script>
+
 </body>
 </html>
