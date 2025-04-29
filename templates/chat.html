@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HealthGuide AI Chat | Your Health Assistant</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    :root {
+      --primary: #3498db;
+      --primary-light: #ebf5fb;
+      --secondary: #2ecc71;
+      --text: #2c3e50;
+      --light-text: #7f8c8d;
+      --bg: #ffffff;
+      --light-gray: #f8f9fa;
+      --border: #e0e0e0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--light-gray);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background-color: var(--bg);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 2rem;
+      overflow-y: auto;
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 1.2rem;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .message-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+    }
+
+    .bot-avatar {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .user-avatar-msg {
+      background-color: var(--secondary);
+      color: #fff;
+    }
+
+    .message-content {
+      max-width: 75%;
+    }
+
+    .message-sender {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .message-text {
+      background-color: var(--light-gray);
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
+
+    .user-message .message-text {
+      background-color: var(--primary-light);
+    }
+
+    .message-time {
+      font-size: 0.75rem;
+      color: var(--light-text);
+      margin-top: 0.25rem;
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      animation: typing-animation 1.5s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing-animation {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    .input-area {
+      display: flex;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background-color: var(--bg);
+    }
+
+    textarea {
+      flex: 1;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      resize: none;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      height: 45px;
+    }
+
+    .send-btn {
+      background-color: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0 1.5rem;
+      margin-left: 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s ease;
+    }
+
+    .send-btn:hover {
+      background-color: #2980b9;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <i class="fas fa-heartbeat"></i> HealthGuide AI
+  </header>
+
+  <div class="chat-container" id="chat">
+    <!-- Chat messages will appear here -->
+  </div>
+
+  <div class="input-area">
+    <textarea id="userInput" placeholder="Type your health question..."></textarea>
+    <button class="send-btn" onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chat');
+    const inputField = document.getElementById('userInput');
+
+    // Load chat history from localStorage
+    window.addEventListener('load', () => {
+      const messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
+      messages.forEach(({ sender, message, isUser }) => {
+        appendMessage(sender, message, isUser);
+      });
+    });
+
+    inputField.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    function appendMessage(sender, message, isUser = false) {
+      const messageElement = document.createElement('div');
+      messageElement.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+      messageElement.innerHTML = `
+        <div class="message-avatar ${isUser ? 'user-avatar-msg' : 'bot-avatar'}">
+          <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
+        </div>
+        <div class="message-content">
+          <div class="message-sender">${sender}</div>
+          <div class="message-text">${message}</div>
+          <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+        </div>
+      `;
+      chatBox.appendChild(messageElement);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      saveMessage({ sender, message, isUser });
+    }
+
+    function saveMessage({ sender, message, isUser }) {
+      const messages = JSON.parse(localStorage.getItem('chatHistory')) || [];
+      messages.push({ sender, message, isUser });
+      localStorage.setItem('chatHistory', JSON.stringify(messages));
+    }
+
+    function sendMessage() {
+      const message = inputField.value.trim();
+      if (!message) return;
+
+      appendMessage('You', message, true);
+      inputField.value = '';
+
+      // Typing indicator
+      const typingHTML = `
+        <div class="message typing-indicator" id="typing">
+          <div class="message-avatar bot-avatar"><i class="fas fa-robot"></i></div>
+          <div class="typing-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>`;
+      chatBox.insertAdjacentHTML('beforeend', typingHTML);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('typing').remove();
+        appendMessage('HealthGuide AI', data.reply);
+      })
+      .catch(error => {
+        document.getElementById('typing').remove();
+        appendMessage('HealthGuide AI', '⚠️ Sorry, something went wrong connecting to the server.');
+      });
+    }
+  </script>
+</body>
+</html>
