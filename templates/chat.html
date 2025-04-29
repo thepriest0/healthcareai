@@ -3,56 +3,110 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HealthGuide AI Chat | Your Health Assistant</title>
+  <title>HealthGuide AI Chat | Your Personal Health Assistant</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     :root {
-      --primary: #3498db;
-      --primary-light: #ebf5fb;
-      --secondary: #2ecc71;
-      --text: #2c3e50;
-      --light-text: #7f8c8d;
-      --bg: #ffffff;
-      --light-gray: #f8f9fa;
-      --border: #e0e0e0;
+      --primary: #6366f1;
+      --primary-light: #e0e7ff;
+      --primary-dark: #4f46e5;
+      --secondary: #10b981;
+      --secondary-light: #d1fae5;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --bg: #f9fafb;
+      --card-bg: #ffffff;
+      --border: #e5e7eb;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--light-gray);
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
       display: flex;
       flex-direction: column;
       height: 100vh;
+      line-height: 1.6;
     }
 
     header {
-      background-color: var(--bg);
-      padding: 1rem 2rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      font-weight: 700;
-      font-size: 1.5rem;
-      color: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 1.25rem 2rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: var(--shadow);
+      z-index: 10;
+    }
+
+    .logo {
       display: flex;
       align-items: center;
       gap: 0.75rem;
+    }
+
+    .logo-icon {
+      font-size: 1.75rem;
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-tagline {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      font-weight: 400;
+      margin-left: auto;
     }
 
     .chat-container {
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 1rem 2rem;
+      padding: 1.5rem 2rem;
       overflow-y: auto;
+      background-color: var(--bg);
+      background-image: radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0);
+      background-size: 20px 20px;
     }
 
     .message {
       display: flex;
       align-items: flex-start;
-      margin-bottom: 1.2rem;
-      animation: fadeIn 0.3s ease-in;
+      margin-bottom: 1.5rem;
+      animation: fadeIn 0.4s ease-out;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+    }
+
+    .user-message {
+      margin-left: auto;
     }
 
     .message-avatar {
@@ -63,57 +117,87 @@
       align-items: center;
       justify-content: center;
       margin-right: 1rem;
+      flex-shrink: 0;
+      box-shadow: var(--shadow);
     }
 
     .bot-avatar {
-      background-color: var(--primary-light);
-      color: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
     }
 
     .user-avatar-msg {
-      background-color: var(--secondary);
-      color: #fff;
+      background: linear-gradient(135deg, #6b7280, #4b5563);
+      color: white;
     }
 
     .message-content {
-      max-width: 75%;
+      max-width: calc(100% - 60px);
+      display: flex;
+      flex-direction: column;
     }
 
     .message-sender {
       font-weight: 600;
       margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+      color: var(--text-light);
     }
 
     .message-text {
-      background-color: var(--light-gray);
-      padding: 0.8rem 1rem;
-      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius-md);
       white-space: pre-wrap;
+      box-shadow: var(--shadow);
+      position: relative;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .bot-message .message-text {
+      background-color: var(--card-bg);
+      border-top-left-radius: 4px;
+      color: var(--text);
     }
 
     .user-message .message-text {
-      background-color: var(--primary-light);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border-top-right-radius: 4px;
     }
 
     .message-time {
       font-size: 0.75rem;
-      color: var(--light-text);
-      margin-top: 0.25rem;
+      color: var(--text-light);
+      margin-top: 0.5rem;
+      align-self: flex-end;
+      opacity: 0.8;
+    }
+
+    .user-message .message-time {
+      color: rgba(255, 255, 255, 0.7);
     }
 
     .typing-indicator {
       display: flex;
       align-items: center;
+      padding: 0.5rem 1rem;
+      background-color: var(--card-bg);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
+      width: fit-content;
+      margin-bottom: 1.5rem;
     }
 
     .typing-dots {
       display: flex;
-      gap: 0.25rem;
+      gap: 0.5rem;
+      padding: 0.75rem;
     }
 
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       background-color: var(--primary);
       border-radius: 50%;
       animation: typing-animation 1.5s infinite ease-in-out;
@@ -123,68 +207,222 @@
     .dot:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes typing-animation {
-      0%, 60%, 100% { transform: translateY(0); }
-      30% { transform: translateY(-6px); }
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+      30% { transform: translateY(-5px); opacity: 1; }
     }
 
     .input-area {
       display: flex;
-      padding: 1rem 2rem;
+      padding: 1.25rem 2rem;
       border-top: 1px solid var(--border);
-      background-color: var(--bg);
+      background-color: var(--card-bg);
+      position: relative;
+      z-index: 5;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .input-container {
+      flex: 1;
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
     }
 
     textarea {
-      flex: 1;
-      border: 1px solid #ccc;
-      border-radius: 10px;
+      width: 100%;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
       resize: none;
-      padding: 0.75rem 1rem;
+      padding: 1rem 1.25rem;
       font-size: 1rem;
-      font-family: 'Inter', sans-serif;
-      height: 45px;
+      font-family: 'Poppins', sans-serif;
+      min-height: 60px;
+      max-height: 150px;
+      transition: var(--transition);
+      background-color: var(--card-bg);
+      box-shadow: var(--shadow);
+      color: var(--text);
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
     }
 
     .send-btn {
-      background-color: var(--primary);
-      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
       border: none;
-      padding: 0 1.5rem;
-      margin-left: 0.75rem;
-      border-radius: 8px;
+      padding: 0 1.75rem;
+      margin-left: 1rem;
+      border-radius: var(--radius-md);
       cursor: pointer;
       font-weight: 600;
-      transition: 0.3s ease;
+      transition: var(--transition);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
     }
 
     .send-btn:hover {
-      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .send-btn:active {
+      transform: translateY(0);
+    }
+
+    .input-hint {
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      opacity: 0.7;
     }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Floating action button for mobile */
+    .fab {
+      display: none;
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+      cursor: pointer;
+      z-index: 20;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem;
+      }
+      
+      .logo-text {
+        font-size: 1.25rem;
+      }
+      
+      .logo-tagline {
+        display: none;
+      }
+      
+      .chat-container {
+        padding: 1rem;
+      }
+      
+      .input-area {
+        padding: 1rem;
+      }
+      
+      .send-btn {
+        padding: 0 1.25rem;
+        height: 50px;
+      }
+      
+      .fab {
+        display: flex;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Pulse animation for important messages */
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+    }
   </style>
 </head>
 <body>
 
   <header>
-    <i class="fas fa-heartbeat"></i> HealthGuide AI
+    <div class="logo">
+      <div class="logo-icon">
+        <i class="fas fa-heartbeat"></i>
+      </div>
+      <div class="logo-text">HealthGuide AI</div>
+    </div>
+    <div class="logo-tagline">Your 24/7 Personal Health Assistant</div>
   </header>
 
   <div class="chat-container" id="chat">
-    <!-- Chat messages will appear here -->
+    <!-- Welcome message -->
+    <div class="message bot-message">
+      <div class="message-avatar bot-avatar">
+        <i class="fas fa-robot"></i>
+      </div>
+      <div class="message-content">
+        <div class="message-sender">HealthGuide AI</div>
+        <div class="message-text pulse" style="border-left: 4px solid var(--primary);">
+          Hello! I'm your personal HealthGuide AI assistant. 😊<br><br>
+          You can ask me about symptoms, medications, fitness tips, nutrition advice, or any health-related questions. I'm here to help 24/7!<br><br>
+          <small style="opacity:0.8;">Remember: I provide informational support only, not medical diagnosis.</small>
+        </div>
+        <div class="message-time">Today at <span id="current-time"></span></div>
+      </div>
+    </div>
   </div>
 
   <div class="input-area">
-    <textarea id="userInput" placeholder="Type your health question..."></textarea>
-    <button class="send-btn" onclick="sendMessage()">Send</button>
+    <div class="input-container">
+      <textarea id="userInput" placeholder="Ask me anything about health, fitness, or wellness..."></textarea>
+      <div class="input-hint">Press Shift+Enter for new line</div>
+    </div>
+    <button class="send-btn" onclick="sendMessage()">
+      <i class="fas fa-paper-plane"></i>
+    </button>
   </div>
+
+  <button class="fab" onclick="focusInput()">
+    <i class="fas fa-comment-medical"></i>
+  </button>
 
   <script>
     const chatBox = document.getElementById('chat');
     const inputField = document.getElementById('userInput');
+    
+    // Set current time in welcome message
+    document.getElementById('current-time').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
     // Load chat history from localStorage
     window.addEventListener('load', () => {
@@ -199,7 +437,15 @@
         e.preventDefault();
         sendMessage();
       }
+      
+      // Auto-resize textarea
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
     });
+
+    function focusInput() {
+      inputField.focus();
+    }
 
     function appendMessage(sender, message, isUser = false) {
       const messageElement = document.createElement('div');
@@ -232,20 +478,43 @@
 
       appendMessage('You', message, true);
       inputField.value = '';
+      inputField.style.height = '60px';
 
       // Typing indicator
       const typingHTML = `
-        <div class="message typing-indicator" id="typing">
+        <div class="message" id="typing">
           <div class="message-avatar bot-avatar"><i class="fas fa-robot"></i></div>
-          <div class="typing-dots">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
+          <div class="message-content">
+            <div class="message-sender">HealthGuide AI</div>
+            <div class="typing-indicator">
+              <div class="typing-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+            </div>
           </div>
         </div>`;
       chatBox.insertAdjacentHTML('beforeend', typingHTML);
       chatBox.scrollTop = chatBox.scrollHeight;
 
+      // Simulate API call (replace with actual fetch)
+      setTimeout(() => {
+        document.getElementById('typing').remove();
+        
+        // Sample responses - replace with actual API response
+        const sampleResponses = [
+          "Based on your symptoms, it could be related to seasonal allergies. Have you tried antihistamines? However, if symptoms persist for more than a week, please consult a doctor.",
+          "That's a great question about nutrition! A balanced diet should include plenty of fruits, vegetables, lean proteins, and whole grains. Would you like me to suggest a meal plan?",
+          "For fitness, I recommend starting with 30 minutes of moderate exercise daily. Remember to stay hydrated and listen to your body's signals."
+        ];
+        
+        const randomResponse = sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
+        appendMessage('HealthGuide AI', randomResponse);
+      }, 1500);
+      
+      // Actual API call would look like this:
+      /*
       fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -260,6 +529,7 @@
         document.getElementById('typing').remove();
         appendMessage('HealthGuide AI', '⚠️ Sorry, something went wrong connecting to the server.');
       });
+      */
     }
   </script>
 </body>
